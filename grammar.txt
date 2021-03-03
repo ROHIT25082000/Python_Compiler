@@ -1,0 +1,130 @@
+Grammar of the while and if parser  
+
+StartProgram	:	StartParse	T_EndOfFile
+				;	
+			
+constant	:	T_Number 
+			|	T_String
+			;  
+			
+T_ID	: [_a-zA-Z][_a-zA-Z0-9]*
+
+term	:T_ID
+		|constant
+		|list_index
+		;  
+		
+list_index	:	T_ID T_OB constant T_CB
+
+StartParse	:	T_NL StartParse
+			|	final_statements T_NL StartParse
+			|	final_statement	T_NL
+			;  
+			
+basic_stmt	: pass_stmt
+			| break_stmt
+			| import_stmt
+			| assign_stmt
+			| bool_exp
+			| arith_exp
+			| print_stmt
+			| return_stmt
+			; 
+arith_exp	: term
+			| arith_exp T_PL arith_exp
+			| arith_exp T_MN arith_exp
+			| arith_exp T_ML arith_exp
+			| arith_exp T_DV arith_exp
+			| T_OP arith_exp T_CP
+			;
+ROP		: 	T_GT  
+		|   T_LT 
+		|   T_LE 
+		|	T_GE
+		|	T_NE
+		|	T_EQ
+		; 
+
+boolexp		: 	boolterm 
+			| boolterm T_OR boolterm
+			| boolterm T_AND boolterm 
+			| arith_exp ROP arith_exp 
+			| arith_exp T_IN T_ID
+			; 
+			
+boolterm	:	boolfactor
+			|	arith_exp T_EQ arith_exp
+			|	T_True
+			| 	T_False
+			; 
+			
+bool_factor	: T_Not bool_factor
+			| T_OP bool_exp T_CP 
+			;  
+			
+import_stmt : T_import T_ID
+			;  
+			
+assign_stmt : T_ID T_EQL arith_exp 
+			| T_ID T_EQL bool_exp
+			| T_ID T_EQL constant
+			; 
+pass_stmt	:	T_Pass
+			; 
+			
+break_stmt 	:  T_Break  
+			; 
+			
+return_stmt : T_return
+			;  
+print_stmt  : T_print T_OP constant T_CP
+			| T_print T_OP T_ID T_CP
+			; 
+						
+finalStatement	:	basic_stmt 
+				| 	cmpd_stmt
+				;
+
+cmpd_stmt	:  if_stmt 
+			|  while_stmt
+			; 
+			
+if_stmt		: T_if boolexp T_CLN start_suite
+			| T_if boolexp T_CLN start_suite elif_stmt
+			; 
+
+elif_stmt	: T_elif boolexp T_CLN start_suite elif__stmt
+			| else_stmt 
+			; 
+
+else_stmt	: T_else T_CLN start_suite
+			;
+
+while_stmt	:	T_while	bool_exp start_suite
+			; 
+
+start_suite	: basic_stmt 
+			| T_NL ID finalstatements suite
+			;
+
+suite  :  T_NL ND finalstatement suite 
+	   |  T_NL end_suite
+	   ; 
+	   
+end_suite : DD finalstatement 
+		  | DD 
+		  ; 
+
+
+
+
+
+
+
+
+			
+			
+			
+
+
+
